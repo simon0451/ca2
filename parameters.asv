@@ -1,0 +1,8 @@
+PARAMETERS
+!!!White_Space_Delimited!!!
+qdp(W/m^2): 50000
+h(W/(K*m^2)): 175
+tinf(K): 300
+k(W/(m*K)): 250
+L(m): 1
+D(m): 1
