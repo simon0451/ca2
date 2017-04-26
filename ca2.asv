@@ -120,27 +120,31 @@ for i = 1:1:col %this is iterating through a row
                 n = n+1; %increamenting node counter
                 
             case 9 %Bottom right corner exposed to to convection on side %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                A(n,n) = -(k*dy/2/(dx/2)+k*dx/2/(dy/2));
+                A(n,n) = -(k*dy/2/(dx/2)+k*dx/2/(dy/2)+h*(dy/2)*Tinf)+qdp*dx/2;
                 %node on the right is convection
                 A(n,n-1) = k*dy/2/(dx/2); %node on the left
-                %node below is handled by the heat flux in
+                A(n,n+row) = qdp*dx/2; %node below
                 A(n,n-row) = k*dx/2/(dy/2); %node above
-                B(n) = -h*(dy/2)*Tinf+qdp*dx/2;
+                B(n) = -h*(dy/2)*Tinf;
                 n = n+1; %increamenting node counter
         end
     end
 end
-
-%% Calculating the Matrix Values
-
-C = A\B;
-
-
-
-
-
-
-
-
-
-
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
