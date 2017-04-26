@@ -16,8 +16,8 @@ D = str2double(parameters(14));
 
 %% Non-dimensionalize Variables
 
-row = 10; %the number of nodes in the x direction
-col = row; %since the matrix needs to be square, the Y and X directions have the same number of nodes, the dimensions of the nodes are different however, if the part is not square 
+row = 50; %the number of nodes in the x direction
+col = 50; %since the matrix needs to be square, the Y and X directions have the same number of nodes, the dimensions of the nodes are different however, if the part is not square 
 numdx = row/L; %(nodes/m) = number of nodes per meter
 numdy = D*col; %(nodes/m) = number of nodes per meter
 dx = 1/numdx; %meters per node
@@ -42,7 +42,7 @@ nodetype(end,end) = 9; %the lower right corner is case 9
 %%
 for i = 1:1:col %this is the number of rows
     for j = i:1:row %number of columns
-        n = i; %?
+        n = j; %?
         
         switch nodetype(i,j)
             
@@ -55,7 +55,7 @@ for i = 1:1:col %this is the number of rows
                 B(n) = -h*(dx/2)*Tinf; %convection, but half value since it is at the corner
                 
             case 2 %Top edge exposed to convection
-                A(n,n) = -((h*dx)+(k*dx/dy)+2*(k*.5*dy/dx));
+                A(n,n) = -((h*dx*Tinf)+(k*dx/dy)+2*(k*.5*dy/dx));
                 A(n,n+1) = k*.5*dy/dx; %node to the right
                 A(n,n-1) = k*.5*dy/dx; %node to the left
                 %no node above - convection, this is the top edge!
@@ -63,10 +63,19 @@ for i = 1:1:col %this is the number of rows
                 B(n) = -h*dx*Tinf; %there is convection at the top of the solid perpendicular to the x axis
                 
             case 3 %Top right corner, exposed to convection on two sides
-                
+                A(n,n) = -((k*dy/2/(dx/2))+(k*dx/2/(dy/2))+(h*((dx+dy)/2)*Tinf));
+                %node on the right is convection
+                A(n,n-1) = k*dy/2/(dx/2); %node on the left
+                A(n,n+row) = k*dx/2/(dy/2); %node below
+                %node above is convection
                 B(n) = -h*((dx+dy)/2)*Tinf; %coming in from both y and x directions, both only getting half area (div/2)
                 
             case 4 %Left side, insulated on one side, conduction on the other side
+                A(n,n) = -(k*dx/dy+k*dy/(dx/2));
+                A(n,n+1) = k*dy/(dx/2); %node on the right
+                %node on the left is insulated
+                A(n,n+row) = k*dx/2/dy; %node below
+                A(n,n-row) = k*dx/2/dy; %node above
                 B(n) = 0; %insulated, no convection
                 
             case 5 %Central node - conduction on all sides
@@ -78,10 +87,20 @@ for i = 1:1:col %this is the number of rows
                 B(n) = 0; %there is no convection in the central nodes
                 
             case 6 %Right side - conduction on one side and convection on the other
+                A(n,n) = -((k*dx/dy)+(k*dy/(x/2)));
+                %node on the right is convection
+                A(n,n-1) = k*dy/(x/2); %node on the left
+                A(n,n+row) = k*dx/2/dy; %node below
+                A(n,n-row) = k*dx/2/dy; %node above
                 B(n) = -h*dy*Tinf; %coming from y direction
                 
             case 7 %Lower left corner, exposed to a heat flux in on the bottom and insulation on the right
-                B(n) = -h*(dx/2)*Tinf; %coming perpendicular to x, half since it's a corner
+                A(n,n) = -((k*dy/2/(dx/2))+(k*dx/2/(dy/2)))+(qdp*dx/2);
+                A(n,n+1) = k*dy/2/(dx/2); %node on the right
+                %node on the left is insulated
+                A(n,n+row) = qdp*dx/2; %node below
+                A(n,n-row) = k*dx/2/(dy/2); %node above
+                B(n) = 0; %no convection
                 
             case 8 %Bottom side, exposed to heat flux on one side, and conduction on the other
                 A(n,n) = -((k*dx/dy)+2*(k*.5*dy/dx))+qdp*dx;
@@ -92,7 +111,11 @@ for i = 1:1:col %this is the number of rows
                 B(n) = 0; %exposed to heat flux only, no convection
                 
             case 9 %Bottom right corner exposed to to convection on side
-
+                A(n,n) = -(k*dy/2/(dx/2)+k*dx/2/(dy/2)+h*(dy/2)*Tinf)+qdp*dx/2;
+                %node on the right is convection
+                A(n,n-1) = k*dy/2/(dx/2); %node on the left
+                A(n,n+row) = qdp*dx/2; %node below
+                A(n,n-row) = k*dx/2/(dy/2); %node above
                 B(n) = -h*(dy/2)*Tinf;
         end
     end
