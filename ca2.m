@@ -49,32 +49,34 @@ for i = numY %this is the number of rows
             case 1 %Top left corner (left blank)
                 A(n,n) = -(k*dy/(2*dx)+k*dx/(2*dy)+h(dx/2+dy/2));
                 A(n,n+1) = k*dy/(2*dx); %half area conduction from the right side
-                A(n,col) = k*dx/(2*dy); %coming up form the bottom?
+                A(n,numX) = k*dx/(2*dy); %coming up form the bottom?
                 B(n) = -h*(dx/2)*Tinf; %convection, but half value since it is at the corner
             case 2 %Top edge exposed to convection
                 A(n,n) = -(k*dx/dx+k+dy/dx-h*dx*Tinf);
                 A(n,n-1) = k*dx/(2*dx); %half area conduction from the left side
                 A(n,n+1) = k*dx/(2*dx); %half area conduction from the right side
-                A(n,n+col) = k*dy/dx;
+                A(n,n+numX) = k*dy/dx;
                 B(n) = -h*dx*Tinf; %there is always convection at the top of the array
                 
             case 3 %Top right corner, exposed to convection on two sides
+                B(n) = -h*((dx+dy)/2)*Tinf; %coming in from both y and x directions, only getting half area (div/2)
                 
             case 4 %Left side, insulated on one side, conduction on the other side
-                
+                B(n) = 0; %insulated, no convection
             case 5 %Central node - conduction on all sides
+                B(n) = 0; %there is no convection in the central nodes
                 
             case 6 %Right side - conduction on one side and convection on the other
-                
+                B(n) = -h*dy*Tinf; %coming from y direction
             case 7 %Lower left corner, exposed to a heat flux in on the bottom and insulation on the right
-                
+                B(n) = -h*(dx/2)*Tinf; %coming perpendicular to x, half since it's a corner
             case 8 %Bottom side, exposed to heat flux on one side, and conduction on the other
-                
+                B(n) = -h*dx*Tinf;
             case 9 %Bottom right corner exposed to to convection on side
                 A(n,n) = -(k*dx/(2*dx)+k*dx/(2*dy)+h*(dy/2));
                 A(n,n-1) = k*dy/(2*dx);
                 A(n,n+1) = k*dx/(2*dy);
-                A(n,n-col) = k*dx/dy;
+                A(n,n-numX) = k*dx/dy;
                 B(n) = -h*(dy/2)*Tinf;
         end
     end
